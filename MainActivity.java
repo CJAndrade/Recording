@@ -41,6 +41,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.os.SystemClock;
 
@@ -58,11 +59,16 @@ import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
-
+//import for MOGA controller
+import com.bda.controller.Controller;
+import com.bda.controller.ControllerListener;
+import com.bda.controller.KeyEvent;
+import com.bda.controller.MotionEvent;
+import com.bda.controller.StateEvent;
 
 import android.widget.TextView;
 
-public class MainActivity extends Activity implements OnCompletionListener {
+public class MainActivity extends Activity implements OnCompletionListener, ControllerListener {
     private static final String TAG = "CJAAudioRecorder";
     static Date d = new Date();
     //static CharSequence currentDateTime  = DateFormat.format("EEEE, MMMM d, yyyy ", d.getTime());
@@ -80,6 +86,8 @@ public class MainActivity extends Activity implements OnCompletionListener {
     private MediaRecorder mediaRecorder = null;
 
      MediaPlayer mediaPlayer = null;
+     //For CJA MOGA
+     Controller mController = null;
 //For CJANFC
      NfcAdapter adapter;
      PendingIntent pendingIntent;
@@ -197,6 +205,12 @@ public class MainActivity extends Activity implements OnCompletionListener {
         
        // trackNameeditText.setText(currentDateTime);
         this.setButtonsEnabled(true, false, this.files.exists());
+        //for MOGA controller
+        mController = Controller.getInstance(this);
+        mController.init();
+        Log.d("CJAMOGA",mController.toString());
+        
+        mController.setListener(this, new Handler());
 		//reciving data from pebble 
         //CJATODO need to implement a broadcast reciver
         //from http://developer.getpebble.com/2/mobile-app-guide/android-guide.htm
@@ -481,6 +495,8 @@ public class MainActivity extends Activity implements OnCompletionListener {
         super.onPause();
         this.stop(null);
         WriteModeOff(); //NFC function
+        if(mController != null) {
+        	mController.onPause(); }
     }
 
 	@Override
@@ -490,6 +506,8 @@ public class MainActivity extends Activity implements OnCompletionListener {
 		 adapter.enableForegroundDispatch(this, pendingIntent, null, null);
 
 		WriteModeOn();//NFC function
+		if(mController != null) {
+			mController.onResume(); }
 	}
     // called when the playback is done
     public void onCompletion(MediaPlayer mp) {
@@ -498,6 +516,13 @@ public class MainActivity extends Activity implements OnCompletionListener {
         timechronometer.stop();
         stopButton.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_media_stop));
         
+    }
+    
+    @Override
+    protected void onDestroy() {//CJATODO nullify all the variable
+    if(mController != null) {
+    mController.exit(); }
+            super.onDestroy();
     }
 //to install the watch app pbw called from the Action bar    
     private void installWatchApp() {
@@ -647,17 +672,74 @@ public class MainActivity extends Activity implements OnCompletionListener {
 	  }
 	  return null;
 	}
-	
+	//For NFC
 	private void WriteModeOn(){
 		writeMode = true;
 		adapter.enableForegroundDispatch(this, pendingIntent, writeTagFilters, null);
 	}
-
+ //for NFC
 	private void WriteModeOff(){
 		writeMode = false;
 		adapter.disableForegroundDispatch(this);
 	}
+	
+	//For MOGA
+	@Override
+	public void onMotionEvent(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+   //For Moga	
+public void onStateEvent(StateEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+	//For Moga
+	@Override
+	public void onKeyEvent(KeyEvent event) { //A - Record X- Stop Y- Play 
+		// TODO Auto-generated method stub
+		switch(event.getKeyCode())
+		{
+		case KeyEvent. KEYCODE_BUTTON_A:  
+		if(event.getAction() == KeyEvent.ACTION_DOWN) {
+		// button A has been pressed
+			Log.d("CJAMOGA","a button A is pressed");
+			record(null); 
+			}
+		else
+		{
+		// button A has been released
+			Log.d("CJAMOGA","a button A is Released");
+		} break;
+		case KeyEvent. KEYCODE_BUTTON_X:
+		if(event.getAction() == KeyEvent.ACTION_DOWN) {
+		// button A has been pressed
+			Log.d("CJAMOGA","a button X is pressed");
+			stop(null);
+			}
+		else
+		{
+		// button A has been released
+			Log.d("CJAMOGA","a button X is Released");
+		} break;
+		case KeyEvent. KEYCODE_BUTTON_Y:
+		if(event.getAction() == KeyEvent.ACTION_DOWN) {
+		// button A has been pressed
+			Log.d("CJAMOGA","a button Y is pressed");
+			play(null);
+			}
+		else
+		{
+		// button A has been released
+			Log.d("CJAMOGA","a button Y is Released");
+		} break;
+
+		}
+	}
+
     
+	
 }
 
 
