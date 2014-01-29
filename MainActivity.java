@@ -415,7 +415,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
             this.mediaRecorder.release();
             this.mediaRecorder = null;
             
-            /*Context c=getApplicationContext();
+           /* Context c=getApplicationContext();
             ContentResolver mCr = c.getContentResolver();
             ContentValues values = new ContentValues();
             values.put(MediaStore.MediaColumns.DATA, this.files.getAbsolutePath());
@@ -431,11 +431,12 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
             //values.put(MediaStore.Audio.Media.IS_MUSIC, false);
             Log.d("TAGCreateNewfile", "adding to URI Artist");
             Uri uri = MediaStore.Audio.Media.getContentUriForPath(this.files.getAbsolutePath());
-            mCr.insert(uri, values);
-            Log.d("TAGCreateNewfile", "before sendBroadcast ");
+            mCr.insert(uri, values);*/
+            Log.d("TAGCreateNewfile", extStorageDirectory.toString());
+            Log.d("TAGCreateNewfile", OUT_FILE_NAME.toString());
          // Notifying the media application on the device
-            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
-            Log.d("TAGCreateNewfile", "After sendBroadcast ");*/
+            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://"+extStorageDirectory+"/"+OUT_FILE_NAME)));
+            Log.d("TAGCreateNewfile", "After sendBroadcast ");
             
          // add new file to your media library
            /* ContentValues values = new ContentValues(4);
