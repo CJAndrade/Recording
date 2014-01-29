@@ -128,7 +128,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
         		intent.setAction(MediaStore.INTENT_ACTION_MEDIA_SEARCH);
         		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         		query = "Wearable Recorder";
-        		intent.putExtra(MediaStore.EXTRA_MEDIA_ALBUM, "werablesRecord"); //CJATODO correct spelling
+        		intent.putExtra(MediaStore.EXTRA_MEDIA_ALBUM, "wearableRecord"); //CJATODO correct spelling
         		intent.putExtra(MediaStore.EXTRA_MEDIA_FOCUS,
         		MediaStore.Audio.Albums.ENTRY_CONTENT_TYPE);
         		intent.putExtra(SearchManager.QUERY, query);
@@ -199,7 +199,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
       //CJAWtest  this.pushButton = (Button)super.findViewById(R.id.pushButton); //CJA
       //CJAWtest  this.fromPebbletextView = (TextView)super.findViewById(R.id.fromPebbletextView);
         //Creating a new folder for storing the recordings
-        files = new File(Environment.getExternalStorageDirectory().getAbsolutePath().toString()+"/werablesRecord");//CJATODO correct spelling
+        files = new File(Environment.getExternalStorageDirectory().getAbsolutePath().toString()+"/wearableRecord");//CJATODO correct spelling
         files.mkdirs();
         extStorageDirectory = files.toString();
         
