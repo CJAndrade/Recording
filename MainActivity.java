@@ -478,17 +478,43 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 				Log.d("TAGCJAPebblePush", "On record just before pushing");
 				PebbleKit.sendDataToPebble(MainActivity.this, AppId, data);
 				Log.d("TAGCJAPebblePush", "On Record After pusing to pebble");
+				
+				/* //CJATODO renaming the file
+			       AlertDialog.Builder alert = new AlertDialog.Builder(this);
+			       alert.setTitle("Rename File");
+			       alert.setMessage("Rename recorded file to");
+
+			       // Set an EditText view to get user input 
+			       final EditText input = new EditText(this);
+			       input.setText(OUT_FILE_NAME);
+			       alert.setView(input);
+			       alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			       public void onClick(DialogInterface dialog, int whichButton) {
+			    	   fileNametextView.setText(input.getText().toString());
+			         // Do something with value!
+			         }
+			       });
+
+			       alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			         public void onClick(DialogInterface dialog, int whichButton) {
+			           // Canceled.
+			         }
+			       });
+
+			       alert.show();*/
     }
 
     public void delete(View v) {
         Log.d("TAGCJAPebble", "delete() file");
         //reseting the timer and the name of the file
         timechronometer.setBase(SystemClock.elapsedRealtime());
-        fileNametextView.setText("");
         this.files.delete(); 
         playButton.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_media_play));
         // update the buttons
        this.setButtonsEnabled(true, false, this.files.exists());
+      
+      
+       
     }
 
     @Override
