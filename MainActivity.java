@@ -734,7 +734,17 @@ public void onStateEvent(StateEvent arg0) {
 		// button A has been released
 			Log.d("CJAMOGA","a button Y is Released");
 		} break;
-
+		case KeyEvent. KEYCODE_BUTTON_B:
+			if(event.getAction() == KeyEvent.ACTION_DOWN) {
+			// button A has been pressed
+				Log.d("CJAMOGA","a button B is pressed");
+				delete(null);
+				}
+			else
+			{
+			// button A has been released
+				Log.d("CJAMOGA","a button B is Released");
+			} break;
 		}
 	}
 
