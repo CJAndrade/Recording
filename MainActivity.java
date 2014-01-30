@@ -414,7 +414,12 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
             this.mediaRecorder.stop();
             this.mediaRecorder.release();
             this.mediaRecorder = null;
-            
+			 //CJATODO renaming the file to what the user wants
+		       AlertDialog.Builder alert = new AlertDialog.Builder(this);
+		       alert.setTitle("Rename File");
+		       alert.setMessage("Rename recorded file to");
+
+		       
            /* Context c=getApplicationContext();
             ContentResolver mCr = c.getContentResolver();
             ContentValues values = new ContentValues();
@@ -434,33 +439,50 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
             mCr.insert(uri, values);*/
             Log.d("TAGCreateNewfile", extStorageDirectory.toString());
             Log.d("TAGCreateNewfile", OUT_FILE_NAME.toString());
-         // Notifying the media application on the device
-            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://"+extStorageDirectory+"/"+OUT_FILE_NAME)));
+            // Notifying the media application on the device
+           //CJA sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://"+extStorageDirectory+"/"+OUT_FILE_NAME)));
             Log.d("TAGCreateNewfile", "After sendBroadcast ");
             
-         // add new file to your media library
-           /* ContentValues values = new ContentValues(4);
-            long current = System.currentTimeMillis();
-            values.put(MediaStore.Audio.Media.TITLE, files.getName());//values.put(MediaStore.Audio.Media.TITLE, "audio" + files.getName());
-            values.put(MediaStore.Audio.Media.DATE_ADDED, (int) (current / 1000));
-            values.put(MediaStore.Audio.Media.MIME_TYPE, "audio/mpeg");
-            //values.put(MediaStore.Audio.Media.ARTIST, "Wearable Recorder");
-            values.put(MediaStore.Audio.Media.DATA, this.files.getAbsolutePath());
-            ContentResolver contentResolver = getContentResolver();
-            Log.d("TAGCreateNewfile", "before sendBroadcast");
-            Uri base = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-            Uri newUri = contentResolver.insert(base, values);
-            Log.d("TAGCreateNewfile", newUri.toString());*/
-            
-            // Notifiy the media application on the device
-            //sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, newUri));
-             //sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,uri.fromFile(Environment.getExternalStorageDirectory())));
-            //moving to the push button to test
-            /*
-            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,Uri.parse(this.files.getAbsolutePath())));
-            Log.d("TAGCreateNewfile", "before sendBroadcast ");
-            Log.d("TAGCreateNewfile", Uri.parse(this.files.getAbsolutePath()).toString());*/
-            //Log.d("TAGCreateNewfile", MediaStore.Audio.Media.getContentUriForPath(this.files.getAbsolutePath().toString());
+         // Set an EditText view to get user input 
+		       final EditText input = new EditText(this);
+		       input.setText(OUT_FILE_NAME);
+		       alert.setView(input);
+		       alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+		       public void onClick(DialogInterface dialog, int whichButton) {
+		
+		    	   fileNametextView.setText(input.getText().toString());
+		    	   Log.d("TAGCreateNewfile", OUT_FILE_NAME.toString());
+		    	   Log.d("TAGCreateNewfile", OUT_FILE_NAME.toString());
+		           File directory = new File("file://"+extStorageDirectory+"/");
+		           File from      = new File(directory, OUT_FILE_NAME);
+		           File to        = new File(directory,input.getText().toString());
+			           try { 
+			        	   if(from.renameTo(to)){
+			        		   Log.d("TAGCreateNewfile", "true"); 
+			        	   }else
+			        	   {
+			        		   Log.d("TAGCreateNewfile", "failled"); }
+			               } 
+			           catch (Exception e) 
+			           { 
+			        	   Toast.makeText(getApplicationContext(), ""+e, Toast.LENGTH_LONG).show();
+			           }
+		           
+		           Log.d("TAGCreateNewfile", from.toString());
+		           Log.d("TAGCreateNewfile", to.toString());
+		    	   sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse(to.toString())));
+		            Log.d("TAGCreateNewfile", "After OK sendBroadcast ");
+		         }
+		       });
+
+		       alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+		         public void onClick(DialogInterface dialog, int whichButton) {
+		        	 sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://"+extStorageDirectory+"/"+OUT_FILE_NAME)));
+		        	  Log.d("TAGCreateNewfile", "After Cancel sendBroadcast ");
+		         }
+		       });
+
+		       alert.show();
         }
         // update the buttons
         this.setButtonsEnabled(true, false, this.files.exists());
@@ -479,29 +501,6 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 				PebbleKit.sendDataToPebble(MainActivity.this, AppId, data);
 				Log.d("TAGCJAPebblePush", "On Record After pusing to pebble");
 				
-				/* //CJATODO renaming the file
-			       AlertDialog.Builder alert = new AlertDialog.Builder(this);
-			       alert.setTitle("Rename File");
-			       alert.setMessage("Rename recorded file to");
-
-			       // Set an EditText view to get user input 
-			       final EditText input = new EditText(this);
-			       input.setText(OUT_FILE_NAME);
-			       alert.setView(input);
-			       alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-			       public void onClick(DialogInterface dialog, int whichButton) {
-			    	   fileNametextView.setText(input.getText().toString());
-			         // Do something with value!
-			         }
-			       });
-
-			       alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-			         public void onClick(DialogInterface dialog, int whichButton) {
-			           // Canceled.
-			         }
-			       });
-
-			       alert.show();*/
     }
 
     public void delete(View v) {
