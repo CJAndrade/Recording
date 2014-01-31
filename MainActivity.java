@@ -418,30 +418,6 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 		       AlertDialog.Builder alert = new AlertDialog.Builder(this);
 		       alert.setTitle("Rename File");
 		       alert.setMessage("Rename recorded file to");
-
-		       
-           /* Context c=getApplicationContext();
-            ContentResolver mCr = c.getContentResolver();
-            ContentValues values = new ContentValues();
-            values.put(MediaStore.MediaColumns.DATA, this.files.getAbsolutePath());
-            values.put(MediaStore.MediaColumns.TITLE, OUT_FILE_NAME);
-            values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mpeg");
-            values.put(MediaStore.MediaColumns.SIZE, this.files.length());
-            values.put(MediaStore.Audio.Media.ARTIST, "Wearable Recorder");
-            //values.put(MediaStore.Audio.Media.ALBUM, "WearableRecorderAlbum");
-            values.put(MediaStore.Audio.Media.IS_RINGTONE, false);
-               //Now set some extra features it depend on you
-            //values.put(MediaStore.Audio.Media.IS_NOTIFICATION, true);
-           // values.put(MediaStore.Audio.Media.IS_ALARM, true);
-            //values.put(MediaStore.Audio.Media.IS_MUSIC, false);
-            Log.d("TAGCreateNewfile", "adding to URI Artist");
-            Uri uri = MediaStore.Audio.Media.getContentUriForPath(this.files.getAbsolutePath());
-            mCr.insert(uri, values);*/
-            Log.d("TAGCreateNewfile", extStorageDirectory.toString());
-            Log.d("TAGCreateNewfile", OUT_FILE_NAME.toString());
-            // Notifying the media application on the device
-           //CJA sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://"+extStorageDirectory+"/"+OUT_FILE_NAME)));
-            Log.d("TAGCreateNewfile", "After sendBroadcast ");
             
          // Set an EditText view to get user input 
 		       final EditText input = new EditText(this);
@@ -449,19 +425,26 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 		       alert.setView(input);
 		       alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 		       public void onClick(DialogInterface dialog, int whichButton) {
-		
+		        if(OUT_FILE_NAME == input.getText().toString()){
+		        }
+		        else{  
+		    	   if (input.getText().toString().isEmpty()){
+		    		   Toast.makeText(getApplicationContext(), "Re-named file name can not be blank.File name set as: "+ OUT_FILE_NAME, Toast.LENGTH_LONG).show();
+		    		   input.setText(OUT_FILE_NAME);
+		    	   }
 		    	   fileNametextView.setText(input.getText().toString());
-		    	   Log.d("TAGCreateNewfile", OUT_FILE_NAME.toString());
-		    	   Log.d("TAGCreateNewfile", OUT_FILE_NAME.toString());
-		           File directory = new File("file://"+extStorageDirectory+"/");
+		           File directory = new File(extStorageDirectory+"/");
 		           File from      = new File(directory, OUT_FILE_NAME);
 		           File to        = new File(directory,input.getText().toString());
-			           try { 
-			        	   if(from.renameTo(to)){
+			      
+		           try { 
+			        	   if(from.renameTo(to)){ //returns true if renaming of file is sucessfull
 			        		   Log.d("TAGCreateNewfile", "true"); 
 			        	   }else
 			        	   {
-			        		   Log.d("TAGCreateNewfile", "failled"); }
+			        		   Log.d("TAGCreateNewfile", "failed to rename file"); 
+			        		   Toast.makeText(getApplicationContext(), "Failed to re-name recorded file, please send the developer an email", Toast.LENGTH_LONG).show();
+			        	   }
 			               } 
 			           catch (Exception e) 
 			           { 
@@ -470,8 +453,12 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 		           
 		           Log.d("TAGCreateNewfile", from.toString());
 		           Log.d("TAGCreateNewfile", to.toString());
-		    	   sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse(to.toString())));
-		            Log.d("TAGCreateNewfile", "After OK sendBroadcast ");
+		           OUT_FILE_NAME = input.getText().toString();
+		           Log.d("TAGCreateNewfile", "From not equal to too ");
+		        }
+			       
+		    	   sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://"+extStorageDirectory+"/"+OUT_FILE_NAME)));
+		           Log.d("TAGCreateNewfile", "After OK sendBroadcast ");
 		         }
 		       });
 
@@ -506,11 +493,34 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
     public void delete(View v) {
         Log.d("TAGCJAPebble", "delete() file");
         //reseting the timer and the name of the file
-        timechronometer.setBase(SystemClock.elapsedRealtime());
-        this.files.delete(); 
-        playButton.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_media_play));
-        // update the buttons
-       this.setButtonsEnabled(true, false, this.files.exists());
+        timechronometer.setBase(SystemClock.elapsedRealtime()); 
+       playButton.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_media_play));
+       // update the buttons
+       
+      //reminder alert for the user for deleting file
+	       AlertDialog.Builder alert = new AlertDialog.Builder(this);
+	       alert.setTitle("Deleteing recorded file");
+	       alert.setMessage("Are you sure you want to delete the file");
+  
+	       alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+	       public void onClick(DialogInterface dialog, int whichButton) {
+			new File(extStorageDirectory,fileNametextView.getText().toString()).delete();
+			fileNametextView.setText("Recorded file deleted");
+			setButtonsEnabled(true, false, false);
+	         }
+	       });
+
+	       alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+	         public void onClick(DialogInterface dialog, int whichButton) {
+	          setButtonsEnabled(true, true, true); 
+	         }
+	       });
+
+	       alert.show();
+
+	       Log.d("TAGCreateNewfile", this.files.toString());
+         //this.files.delete();
+
       
       
        
