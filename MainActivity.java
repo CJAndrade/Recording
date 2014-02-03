@@ -354,34 +354,21 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 
     public void play(View v) {
         Log.d(TAG, "play()");
-        if (this.files.exists()) {
+        File filepaly = new File(extStorageDirectory,fileNametextView.getText().toString());
+        if (filepaly.exists()) {
         	recordButton.setImageDrawable(this.getResources().getDrawable(R.drawable.mic_green));
         	 stopButton.setImageDrawable(this.getResources().getDrawable(R.drawable.pause_red));
         	timechronometer.setBase(SystemClock.elapsedRealtime());
         	timechronometer.start();
             this.mediaPlayer = new MediaPlayer();
             try {
-                this.mediaPlayer.setDataSource(this.files.getAbsolutePath());
+            	Log.d(TAG,new File(extStorageDirectory,fileNametextView.getText().toString()).getAbsolutePath().toString());
+            	Log.d(TAG,this.files.getAbsolutePath().toString());
+                this.mediaPlayer.setDataSource(new File(extStorageDirectory,fileNametextView.getText().toString()).getAbsolutePath());//(this.files.getAbsolutePath());
                 this.mediaPlayer.prepare();
                 this.mediaPlayer.setOnCompletionListener(this);
                 this.mediaPlayer.start();
-                //sending broadcast to inform media devices of the new file 
-                 ContentValues values = new ContentValues(4);
-                long current = System.currentTimeMillis();
-                values.put(MediaStore.Audio.Media.TITLE, files.getName());
-                values.put(MediaStore.Audio.Media.DATE_ADDED, (int) (current / 1000));
-                values.put(MediaStore.Audio.Media.MIME_TYPE, "audio/mpeg");
-                //values.put(MediaStore.Audio.Media.ARTIST, "Wearable Recorder");
-                values.put(MediaStore.Audio.Media.DATA, this.files.getAbsolutePath());
-                ContentResolver contentResolver = getContentResolver();
-                Log.d("TAGCreateNewfile", "before sendBroadcast");
-                Uri base = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-                Uri newUri = contentResolver.insert(base, values);
-                Log.d("TAGCreateNewfile", newUri.toString());
-                
-                // Notifiy the media application on the device
-                sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, newUri));
-				Log.d("TAGCreateNewfile", "before sendBroadcast on play button ");
+        
                 // update the buttons
                 this.setButtonsEnabled(false, true, false);
             } catch (IOException e) {
@@ -453,7 +440,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 		           
 		           Log.d("TAGCreateNewfile", from.toString());
 		           Log.d("TAGCreateNewfile", to.toString());
-		           OUT_FILE_NAME = input.getText().toString();
+		           OUT_FILE_NAME = fileNametextView.getText().toString();
 		           Log.d("TAGCreateNewfile", "From not equal to too ");
 		        }
 			       
@@ -472,7 +459,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 		       alert.show();
         }
         // update the buttons
-        this.setButtonsEnabled(true, false, this.files.exists());
+        this.setButtonsEnabled(true, false, new File(extStorageDirectory,fileNametextView.getText().toString()).exists());
       //Pushing recorded file name to pebble
 		UUID AppId = UUID.fromString("8bb49bab-77fe-4028-bd5e-4fbf35e134e1");
 		PebbleKit.startAppOnPebble(getApplicationContext(), AppId);
