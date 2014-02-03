@@ -492,6 +492,8 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 	       alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 	       public void onClick(DialogInterface dialog, int whichButton) {
 			new File(extStorageDirectory,fileNametextView.getText().toString()).delete();
+			 OUT_FILE_NAME = fileNametextView.getText().toString();
+			sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://"+extStorageDirectory)));
 			fileNametextView.setText("Recorded file deleted");
 			setButtonsEnabled(true, false, false);
 	         }
