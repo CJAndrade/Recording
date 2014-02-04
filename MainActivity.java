@@ -74,10 +74,9 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
     //static CharSequence currentDateTime  = DateFormat.format("EEEE, MMMM d, yyyy ", d.getTime());
    private  String currentDateTime ;//= DateFormat.format("yyyy-MM-dd'T'hh:mm:ss", d).toString();
     private String OUT_FILE_NAME;// = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Rec"+currentDateTime+".m4a";
-
     private ImageButton recordButton;
-
-    private ImageButton stopButton;
+    private  String fromPebble =null;
+   // private ImageButton ;
 
     private ImageButton playButton;
 
@@ -192,7 +191,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
         this.fileNametextView = (TextView)super.findViewById(R.id.fileNametextView);
         this.timechronometer = (Chronometer)super.findViewById(R.id.timechronometer);
         this.recordButton = (ImageButton)super.findViewById(R.id.recordButton);
-        this.stopButton = (ImageButton)super.findViewById(R.id.stopButton);
+        //this.stopButton = (ImageButton)super.findViewById(R.id.stopButton);
         this.playButton = (ImageButton)super.findViewById(R.id.playButton);
         this.deleteButton = (ImageButton)super.findViewById(R.id.deleteButton);
        //CJAWtest this.trackNameeditText = (EditText)super.findViewById(R.id.trackNameeditText);//CJA
@@ -204,7 +203,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
         extStorageDirectory = files.toString();
         
        // trackNameeditText.setText(currentDateTime);
-        this.setButtonsEnabled(true, false, this.files.exists());
+        this.setButtonsEnabled(true, false, false);
         //for MOGA controller
         mController = Controller.getInstance(this);
         mController.init();
@@ -231,6 +230,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 			     }
 				
 				if(val.contentEquals("22")){ 
+					fromPebble="peb";
 					stop(null);
 				}
 			}
@@ -279,20 +279,23 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 		});//CJAWtest */
     }
 
-    private void setButtonsEnabled(boolean record, boolean stop, boolean playAndDelete) {
+    private void setButtonsEnabled(boolean record, boolean play, boolean delete) {
         this.recordButton.setEnabled(record);
-        this.stopButton.setEnabled(stop);
-        this.playButton.setEnabled(playAndDelete);
-        this.deleteButton.setEnabled(playAndDelete);
+       // this.stopButton.setEnabled(stop);
+        this.playButton.setEnabled(play);
+        this.deleteButton.setEnabled(delete);
     }
 
     public void record(View v) {
-        Log.d(TAG, "recordNewfile");
+    	if (this.mediaRecorder != null){
+    		stop(null);
+    	}else{
+    	Log.d(TAG, "recordNewfile");
         //Setting variable to check if mediarecorder is recoding 
         checkRecorderState ="Y";
         //changing the image of the mic button
         recordButton.setImageDrawable(this.getResources().getDrawable(R.drawable.mic_orange));
-        stopButton.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_media_stop_red));
+        //stopButton.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_media_stop_red));
         playButton.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_media_play));
         
         //Starting timer
@@ -327,7 +330,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
             this.mediaRecorder.start();
 
             // update the buttons
-            this.setButtonsEnabled(false, true, false);
+            this.setButtonsEnabled(true, false, false);
             fileNametextView.setText(OUT_FILE_NAME);
             
             //Pushing recorded file name to pebble
@@ -350,14 +353,20 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
         } catch (IOException e) {
             Log.e(TAG, "Failed to record()", e);
         }
+    	}
     }
 
     public void play(View v) {
+    	if (this.mediaPlayer != null){
+    		stop(null);
+    	}
+    	else{
         Log.d(TAG, "play()");
         File filepaly = new File(extStorageDirectory,fileNametextView.getText().toString());
         if (filepaly.exists()) {
         	recordButton.setImageDrawable(this.getResources().getDrawable(R.drawable.mic_green));
-        	 stopButton.setImageDrawable(this.getResources().getDrawable(R.drawable.pause_red));
+        	 //stopButton.setImageDrawable(this.getResources().getDrawable(R.drawable.pause_red));
+        	 playButton.setImageDrawable(this.getResources().getDrawable(R.drawable.pause_red));
         	timechronometer.setBase(SystemClock.elapsedRealtime());
         	timechronometer.start();
             this.mediaPlayer = new MediaPlayer();
@@ -377,6 +386,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
         } else {
             this.playButton.setEnabled(false);
         }
+    	}
     }
 
     public void stop(View v) {
@@ -406,24 +416,30 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 		       alert.setTitle("Rename File");
 		       alert.setMessage("Rename recorded file to");
             
-         // Set an EditText view to get user input 
+         // Set an EditText view to get user input
+		      // string = string.substring(0, string.length()-1);
+		       OUT_FILE_NAME = OUT_FILE_NAME.substring(0, OUT_FILE_NAME.length()-4);
 		       final EditText input = new EditText(this);
 		       input.setText(OUT_FILE_NAME);
 		       alert.setView(input);
 		       alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 		       public void onClick(DialogInterface dialog, int whichButton) {
 		        if(OUT_FILE_NAME == input.getText().toString()){
+		        	//OUT_FILE_NAME =OUT_FILE_NAME+".mp3";
+		        	Log.d("TAGCreateNewfile", "1"+OUT_FILE_NAME);
 		        }
 		        else{  
 		    	   if (input.getText().toString().isEmpty()){
 		    		   Toast.makeText(getApplicationContext(), "Re-named file name can not be blank.File name set as: "+ OUT_FILE_NAME, Toast.LENGTH_LONG).show();
 		    		   input.setText(OUT_FILE_NAME);
 		    	   }
-		    	   fileNametextView.setText(input.getText().toString());
+		    	   Log.d("TAGCreateNewfile", "0"+input.getText().toString());
+		    	   fileNametextView.setText(input.getText().toString()+".mp3");
 		           File directory = new File(extStorageDirectory+"/");
-		           File from      = new File(directory, OUT_FILE_NAME);
-		           File to        = new File(directory,input.getText().toString());
-			      
+		           File from      = new File(directory, OUT_FILE_NAME+".mp3");
+		           Log.d("TAGCreateNewfile", "2"+from.toString());
+		           File to        = new File(directory,input.getText().toString()+".mp3");
+		           Log.d("TAGCreateNewfile", "3"+to.toString());
 		           try { 
 			        	   if(from.renameTo(to)){ //returns true if renaming of file is sucessfull
 			        		   Log.d("TAGCreateNewfile", "true"); 
@@ -438,10 +454,8 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 			        	   Toast.makeText(getApplicationContext(), ""+e, Toast.LENGTH_LONG).show();
 			           }
 		           
-		           Log.d("TAGCreateNewfile", from.toString());
-		           Log.d("TAGCreateNewfile", to.toString());
 		           OUT_FILE_NAME = fileNametextView.getText().toString();
-		           Log.d("TAGCreateNewfile", "From not equal to too ");
+		           Log.d("TAGCreateNewfile", "4"+OUT_FILE_NAME.toString());
 		        }
 			       
 		    	   sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://"+extStorageDirectory+"/"+OUT_FILE_NAME)));
@@ -459,7 +473,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 		       alert.show();
         }
         // update the buttons
-        this.setButtonsEnabled(true, false, new File(extStorageDirectory,fileNametextView.getText().toString()).exists());
+        this.setButtonsEnabled(true, true, new File(extStorageDirectory,fileNametextView.getText().toString()).exists());
       //Pushing recorded file name to pebble
 		UUID AppId = UUID.fromString("8bb49bab-77fe-4028-bd5e-4fbf35e134e1");
 		PebbleKit.startAppOnPebble(getApplicationContext(), AppId);
@@ -539,7 +553,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
         this.stop(null);
         //resetting play timer
         timechronometer.stop();
-        stopButton.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_media_stop));
+        //stopButton.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_media_stop));
         
     }
     
