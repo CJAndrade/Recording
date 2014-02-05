@@ -540,7 +540,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
     @Override
     public void onPause() {
         super.onPause();
-        this.stop(null);
+        //this.stop(null); //CJATODO need to add in notification tray
         WriteModeOff(); //NFC function
         if(mController != null) {
         	mController.onPause(); }
