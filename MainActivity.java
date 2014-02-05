@@ -137,6 +137,14 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
         	  //intall pbw on pebble
         	MainActivity.this.installWatchApp();
         	return true;
+          case R.id.action_share:
+          	  //sharing recording
+            	Intent  shareIntent = new Intent() ;
+            	shareIntent.setAction(Intent.ACTION_SEND);
+            	shareIntent.setType("audio/*");
+            	shareIntent.putExtra(Intent.EXTRA_STREAM,Uri.parse("file://"+extStorageDirectory+"/"+OUT_FILE_NAME));
+            	startActivity(Intent.createChooser(shareIntent, "Share Recording"));
+          	return true;
           case R.id.action_pebble:
         	  //Open pebble app on pebble  
         	  UUID AppId = UUID.fromString("8bb49bab-77fe-4028-bd5e-4fbf35e134e1"); //CJATODO define UUID as global variable
