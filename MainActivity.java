@@ -133,6 +133,15 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
         		intent.putExtra(SearchManager.QUERY, query);
         		startActivity(intent);
             return true;
+        case R.id.action_share:
+      	  //sharing recording
+        	Intent  shareIntent = new Intent() ;
+        	shareIntent.setAction(Intent.ACTION_SEND);
+        	shareIntent.setType("audio/*");
+        	shareIntent.putExtra(Intent.EXTRA_STREAM,Uri.parse("file://"+extStorageDirectory+"/"+OUT_FILE_NAME));
+        	startActivity(Intent.createChooser(shareIntent, "Share Recording"));
+        	
+      	return true;
           case R.id.action_installpebble:
         	  //intall pbw on pebble
         	MainActivity.this.installWatchApp();
