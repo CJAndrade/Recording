@@ -156,6 +156,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
           		toast.setGravity(Gravity.TOP, 0, 0);
           		toast.show();		  
         	  }
+        	  return true;
           case R.id.action_writeNFC: 
         	  try {
         		  ctx = this;
@@ -173,7 +174,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 					Toast.makeText(ctx, ctx.getString(R.string.errortowrite) , Toast.LENGTH_LONG ).show();
 					e.printStackTrace();
 				}
-            
+        	  return true;
           default:
             return super.onOptionsItemSelected(item);
         }
@@ -567,7 +568,8 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
     
     @Override
     protected void onDestroy() {//CJATODO nullify all the variable
-    if(mController != null) {
+    	//this.stop(null); //CJATODO stop recording if running which will in turn update media store
+    	if(mController != null) {
     mController.exit(); }
             super.onDestroy();
     }
@@ -667,7 +669,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 	protected void onNewIntent(Intent intent){
 		if(NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())){
 			mytag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);   
-			Log.d("TAGCJANFCTag",mytag.toString());
+			Log.d("TAGCJANFCTag","0"+mytag.toString());
 			//Toast.makeText(this, this.getString(R.string.oktodetection) + mytag.toString(), Toast.LENGTH_LONG ).show();
 		//For read
 			//protected void onNewIntent(Intent intent) {
@@ -685,7 +687,6 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 				     short tnf = record.getTnf();
 				     byte[] type = record.getType();
 				     String message = getTextData(record.getPayload());
-				     Log.d("TAGCJANFCTag",message);
 				     if (message.contentEquals("WRecord")){ 
 				    	 if(checkRecorderState.contentEquals("N")){
 				    		 record(null); 
@@ -695,9 +696,10 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 				    	 }
 				    	 	 
 				     }else{ 
-				    	 Toast.makeText(getApplicationContext(), "Write to the NFC tag first, to prepare it for recording from the Menu Options", Toast.LENGTH_LONG);
-			          		
-				     }
+				    	 Log.d("TAGCJANFCTag","NFCtagfirst"+message);
+				    	 Toast.makeText(this, "Write  the NFC tag first.To prepare the tag for recording Write the Tag from the Options Menu", Toast.LENGTH_LONG).show();          		
+				    	 Toast.makeText(this, "Data on NFC tag::"+message, Toast.LENGTH_LONG).show();
+				          }
 				      }
 				    }
 				    
@@ -715,7 +717,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 	    return new String(payload, langageCodeLength + 1, payload.length - langageCodeLength - 1, encoding);     
 	  } catch(Exception e) {
 	    e.printStackTrace();
-	    Log.d("TAGCJANFCtag","Exception to reading through NFC message");
+	    Log.d("TAGCJANFCtag","2"+"Exception to reading through NFC message");
 	  }
 	  return null;
 	}
