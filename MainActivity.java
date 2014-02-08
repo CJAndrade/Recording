@@ -15,6 +15,12 @@ import java.util.UUID;
 
 import com.getpebble.android.kit.PebbleKit;
 import com.getpebble.android.kit.util.PebbleDictionary;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.cja.wearablerecorder.ToastAdListener;
+
+//import com.google.android.gms.samples.ads;
+//import com.google.android.gms.samples.ads.ToastAdListener;
 
 
 
@@ -104,7 +110,8 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
   //CJAWtest	private TextView fromPebbletextView; //CJARM for testing
 	private TextView fileNametextView;
 	private Chronometer timechronometer;
-
+   //for Admobs
+	private AdView mAdView;
 
     
 	@Override
@@ -206,6 +213,9 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
        //CJAWtest this.trackNameeditText = (EditText)super.findViewById(R.id.trackNameeditText);//CJA
       //CJAWtest  this.pushButton = (Button)super.findViewById(R.id.pushButton); //CJA
       //CJAWtest  this.fromPebbletextView = (TextView)super.findViewById(R.id.fromPebbletextView);
+        mAdView = (AdView) findViewById(R.id.adView);
+        mAdView.setAdListener(new ToastAdListener(this));
+        mAdView.loadAd(new AdRequest.Builder().build());
         //Creating a new folder for storing the recordings
         files = new File(Environment.getExternalStorageDirectory().getAbsolutePath().toString()+"/wearableRecord");//CJATODO correct spelling
         files.mkdirs();
@@ -540,6 +550,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 
     @Override
     public void onPause() {
+    	mAdView.pause();
         super.onPause();
         //this.stop(null); //CJATODO need to add in notification tray
         WriteModeOff(); //NFC function
@@ -550,6 +561,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 	@Override
 	public void onResume(){
 		super.onResume();
+		mAdView.resume();
 		 PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
 		 adapter.enableForegroundDispatch(this, pendingIntent, null, null);
 
@@ -571,6 +583,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
     	//this.stop(null); //CJATODO stop recording if running which will in turn update media store
     	if(mController != null) {
     mController.exit(); }
+    	mAdView.destroy();
             super.onDestroy();
     }
 //to install the watch app pbw called from the Action bar    
