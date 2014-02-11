@@ -1,5 +1,7 @@
 package com.cja.wearablerecorder;
 
+import com.cja.wearablerecorder.R.drawable;
+
 import android.os.Bundle;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -13,7 +15,8 @@ public class Using_Moga extends Activity {
 		setContentView(R.layout.activity_using__moga);
         ActionBar actionBar = getActionBar();
         //actionBar.setDisplayShowTitleEnabled(false);
-       actionBar.setDisplayShowHomeEnabled(false);
+        actionBar.setIcon(R.drawable.ic_action_mic);
+       actionBar.setDisplayShowHomeEnabled(true);
        actionBar.setTitle("How to use Moga");
        actionBar.setDisplayHomeAsUpEnabled(true);
 	}
