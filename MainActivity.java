@@ -182,6 +182,10 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 					e.printStackTrace();
 				}
         	  return true;
+          case R.id.action_useMoga:
+        	  //opening new view to show how to moga
+        	  startActivity(new Intent(MainActivity.this, Using_Moga.class));
+        	return true;
           default:
             return super.onOptionsItemSelected(item);
         }
