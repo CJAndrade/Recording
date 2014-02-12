@@ -338,6 +338,8 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 			checkRecorderState ="N";
 			Log.d("TAGCreateNewfile", e1.toString());
 		}
+        
+   
         this.mediaRecorder = new MediaRecorder();
         this.mediaRecorder.setAudioChannels(1);
         this.mediaRecorder.setAudioSamplingRate(44100);
@@ -375,6 +377,13 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 
         } catch (IOException e) {
             Log.e(TAG, "Failed to record()", e);
+        }catch (IllegalStateException e){
+        	Log.e(TAG, "illegal - Failed to record()", e);
+        	timechronometer.stop();
+        	recordButton.setImageDrawable(this.getResources().getDrawable(R.drawable.mic_red));
+        	this.mediaRecorder = null;
+        	Toast.makeText(this, "Recoding errored, Ensure that the Mic is not used by another App.If this problem continues Close and Open the app", Toast.LENGTH_LONG).show();
+        	
         }
     	}
     }
@@ -584,10 +593,11 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
     
     @Override
     protected void onDestroy() {//CJATODO nullify all the variable
-    	//this.stop(null); //CJATODO stop recording if running which will in turn update media store
+    	this.stop(null); //CJATODO stop recording if running which will in turn update media store
     	if(mController != null) {
     mController.exit(); }
     	mAdView.destroy();
+    	
             super.onDestroy();
     }
 //to install the watch app pbw called from the Action bar    
