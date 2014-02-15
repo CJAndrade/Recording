@@ -2,10 +2,13 @@ package com.cja.wearablerecorder;
 
 import com.cja.wearablerecorder.R.drawable;
 
+
 import android.os.Bundle;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.text.method.LinkMovementMethod;
 import android.view.Menu;
+import android.widget.TextView;
 
 public class Using_Moga extends Activity {
 
@@ -19,6 +22,7 @@ public class Using_Moga extends Activity {
        actionBar.setDisplayShowHomeEnabled(true);
        actionBar.setTitle("How to use Moga");
        actionBar.setDisplayHomeAsUpEnabled(true);
+       ((TextView) findViewById(R.id.source)).setMovementMethod(LinkMovementMethod.getInstance());
 	}
 
 	@Override

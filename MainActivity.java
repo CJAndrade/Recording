@@ -186,6 +186,14 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
         	  //opening new view to show how to moga
         	  startActivity(new Intent(MainActivity.this, Using_Moga.class));
         	return true;
+          case R.id.action_tellaFriend:
+          	  //sharing recording
+            	Intent  shareIntentFriend = new Intent() ;
+            	shareIntentFriend.setAction(Intent.ACTION_SEND);
+            	shareIntentFriend.setType("text/plain");
+            	shareIntentFriend.putExtra(Intent.EXTRA_TEXT,"Try this new Wearable Audio Recorder that I am using, Install it from https://play.google.com/store/apps/details?id=cja.ukeimage.com");
+            	startActivity(Intent.createChooser(shareIntentFriend, "Share the App with your Friends"));
+          	return true;
           default:
             return super.onOptionsItemSelected(item);
         }
