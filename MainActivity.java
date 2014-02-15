@@ -228,6 +228,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
         mAdView = (AdView) findViewById(R.id.adView);
         mAdView.setAdListener(new ToastAdListener(this));
         mAdView.loadAd(new AdRequest.Builder().build());
+        //mAdView.setVisibility(View.GONE);//CJAWtest to take screenshots
         //Creating a new folder for storing the recordings
         files = new File(Environment.getExternalStorageDirectory().getAbsolutePath().toString()+"/wearableRecord");//CJATODO correct spelling
         files.mkdirs();
