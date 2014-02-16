@@ -191,7 +191,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
             	Intent  shareIntentFriend = new Intent() ;
             	shareIntentFriend.setAction(Intent.ACTION_SEND);
             	shareIntentFriend.setType("text/plain");
-            	shareIntentFriend.putExtra(Intent.EXTRA_TEXT,"Try this new Wearable Audio Recorder that I am using, Install it from https://play.google.com/store/apps/details?id=cja.ukeimage.com");
+            	shareIntentFriend.putExtra(Intent.EXTRA_TEXT,"Try this new Audio Recorder that I am using,with great features. Install it from https://play.google.com/store/apps/details?id=com.cja.wearablerecorder");
             	startActivity(Intent.createChooser(shareIntentFriend, "Share the App with your Friends"));
           	return true;
           default:
