@@ -229,11 +229,11 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
         mAdView.setAdListener(new ToastAdListener(this));
         mAdView.loadAd(new AdRequest.Builder().build());
         //mAdView.setVisibility(View.GONE);//CJAWtest to take screenshots
-        //Creating a new folder for storing the recordings
-        files = new File(Environment.getExternalStorageDirectory().getAbsolutePath().toString()+"/wearableRecord");//CJATODO correct spelling
+        //Creating a new folder for storing the recordings - and checking if the SD card exist
+        files = new File(Environment.getExternalStorageDirectory().getAbsolutePath().toString()+"/wearableRecord");
         files.mkdirs();
         extStorageDirectory = files.toString();
-        
+        Log.d(TAG,extStorageDirectory);
        // trackNameeditText.setText(currentDateTime);
         this.setButtonsEnabled(true, false, false);
         //for MOGA controller
@@ -335,8 +335,9 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
         timechronometer.start();
       //Creating a new file every time
         d = new Date();
-        currentDateTime = DateFormat.format("yyyy-MM-dd'T'hh:mm:ss", d).toString();
-        OUT_FILE_NAME= "Rec"+currentDateTime+".mp3"; //CJA m4a
+        //currentDateTime = DateFormat.format("yyyy-MM-dd'T'hh:mm:ss", d).toString();
+        currentDateTime = DateFormat.format("yyyymmddThhmmss", d).toString();
+        OUT_FILE_NAME= "RecAt"+currentDateTime+".mp3";
         //CJAWtest trackNameeditText.setText(this.files.getAbsolutePath().toString());
         this.files = new File(extStorageDirectory,OUT_FILE_NAME);
         
