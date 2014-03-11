@@ -54,8 +54,12 @@ public class ToastAdListener extends AdListener {
                 errorReason = "No fill";
                 break;
         }
-        Toast.makeText(mContext, String.format("onAdFailedToLoad(%s)", errorReason),
-                Toast.LENGTH_SHORT).show();
+         //Toast.makeText(mContext, String.format("onAdFailedToLoad(%s)", errorReason),
+           //     Toast.LENGTH_SHORT).show();//CJA only for debuging
+               Toast.makeText(mContext, String.format("Hmm,Please let the Adds run"),
+                Toast.LENGTH_LONG).show(); 
+               Toast.makeText(mContext, String.format("Enable your Mobile data or Wi-Fi,to support the App Developer"),
+                Toast.LENGTH_LONG).show();
     }
 
     @Override
