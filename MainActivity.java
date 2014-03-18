@@ -128,7 +128,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
         //case R.id.action_Record: //removed, throwing handle to play music
             // search action
             //return true;
-        case R.id.action_play:
+        case R.id.action_playmusic:
         	     String query = "";
         		Intent intent = new Intent();
         		intent.setAction(MediaStore.INTENT_ACTION_MEDIA_SEARCH);
@@ -185,6 +185,10 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
           case R.id.action_useMoga:
         	  //opening new view to show how to moga
         	  startActivity(new Intent(MainActivity.this, Using_Moga.class));
+        	return true;
+          case R.id.action_play:
+        	  //opening new view to show how to moga
+        	  startActivity(new Intent(MainActivity.this, PlayActivity.class));
         	return true;
           case R.id.action_tellaFriend:
           	  //sharing recording
