@@ -146,6 +146,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
         	return true;
           case R.id.action_share:
           	  //sharing recording
+        	  Log.v("CJAPlayer", "Recorder player"+"file://"+extStorageDirectory+"/"+OUT_FILE_NAME);
             	Intent  shareIntent = new Intent() ;
             	shareIntent.setAction(Intent.ACTION_SEND);
             	shareIntent.setType("audio/*");
@@ -553,7 +554,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 	       public void onClick(DialogInterface dialog, int whichButton) {
 			new File(extStorageDirectory,fileNametextView.getText().toString()).delete();
 			 OUT_FILE_NAME = fileNametextView.getText().toString();
-			sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://"+extStorageDirectory)));
+			//CJA resolve kitkat error sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://"+extStorageDirectory)));
 			fileNametextView.setText("Recorded file deleted");
 			setButtonsEnabled(true, false, false);
 	         }

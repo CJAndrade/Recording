@@ -6,15 +6,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.SearchManager;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -26,21 +41,27 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 
 
 public class PlayActivity extends Activity{
     private int currentID = 0;
+    private AdView mAdView;
     private ImageButton playButton;
     private ListView myListView;
 	private TextView startText;
 	private TextView endText;
-	private MediaPlayer mp;
+	private MediaPlayer mp = null;
 	private int duration;
-	private ProgressBar progressBar;
+	Toast toast;
+	private String messagePass;
+	private ProgressBar progressBar= null;
+	RefreshSongTimeAsyncTask RefreshSongTime =null;
 	private SelectedAdapter selectedAdapter; 
 	private ArrayList list;
+	private ArrayList listDate;
 	public enum SongStatus {
 		INIT,PLAYING,PAUSE,STOPED;
 	}
@@ -56,15 +77,20 @@ public class PlayActivity extends Activity{
         super.setContentView(R.layout.activity_player);
        //Setting the action bar
         ActionBar actionBar = getActionBar();
+       
         //actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setIcon(R.drawable.ic_action_mic);
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setTitle("Player");
         actionBar.setDisplayHomeAsUpEnabled(true);
-
         songStatus = SongStatus.INIT;
+        //Addding Admobs
+        mAdView = (AdView) findViewById(R.id.adView);
+        mAdView.setAdListener(new ToastAdListener(this));
+        mAdView.loadAd(new AdRequest.Builder().build());
      // Creating a  simple a list
      		list = new ArrayList();
+
            File file = new File(SDCardfolder);
            File[] files = file.listFiles(); 
            if (null != files) {
@@ -104,7 +130,14 @@ public class PlayActivity extends Activity{
     		         }
     			}
             });
-
+      //CJADel to mark the button as play does not work.
+            if (mp != null){
+            mp.setOnCompletionListener(new OnCompletionListener(){
+            public void onCompletion(MediaPlayer mp) {
+            	playButton.setImageDrawable(getResources().getDrawable(R.drawable.btn_play));
+            }
+        });
+            }
         processViews();//Initialize other buttons 
 
         //playSong(); //this will irritate the user  
@@ -118,15 +151,19 @@ public class PlayActivity extends Activity{
 					mp.start();
 					mp.seekTo(progressBar.getProgress());
 
-					new RefreshSongTimeAsyncTask().execute();
+					RefreshSongTimeAsyncTask RefreshSongTime= new RefreshSongTimeAsyncTask();
+					RefreshSongTime.execute();
 				}
 				return true;
 			}
 		});
+    
     }
+   
+    
 
     private void playSong() {
-        Log.v("CJAPlayer", "PlayActivity --> playSong. currentID: "
+        Log.v("CJAPlayer", "PlayActivity playSong. currentID: "
                 + currentID);
 		if(!(songStatus==SongStatus.PAUSE)){
         mp = new MediaPlayer();
@@ -159,9 +196,9 @@ public class PlayActivity extends Activity{
 		}//end of if songstatus
         mp.start();
         songStatus = SongStatus.PLAYING;
-        playButton.setImageDrawable(this.getResources().getDrawable(R.drawable.pause));
-        new RefreshSongTimeAsyncTask().execute();
-
+        playButton.setImageDrawable(this.getResources().getDrawable(R.drawable.btn_pause));
+        RefreshSongTime = new RefreshSongTimeAsyncTask();
+        RefreshSongTime.execute();
     }
     
   private void processViews() {
@@ -173,6 +210,7 @@ public class PlayActivity extends Activity{
     	
 		startText = (TextView) findViewById(R.id.startTimeTextView);
 		endText = (TextView) findViewById(R.id.endTimeTextView);
+
     }
     
     class PlayBtnListener implements View.OnClickListener {
@@ -185,7 +223,7 @@ public class PlayActivity extends Activity{
 			if ((mp != null) && (mp.isPlaying())) {
 				mp.pause();
 				songStatus = SongStatus.PAUSE;
-				playButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_media_play));
+				playButton.setImageDrawable(getResources().getDrawable(R.drawable.btn_play));
 			}else
 			{
 				playSong();
@@ -197,19 +235,18 @@ public class PlayActivity extends Activity{
    
 	// Refresh progress bar and text about times and percentages of download of the song
 	public class RefreshSongTimeAsyncTask extends AsyncTask<Void, Integer, Void> {
-		Integer totalBytes;
-		int countSum;
-		
+
 		@Override
 		protected void onPostExecute(Void result) {
+			Log.v("CJAPlayer", "PlayActivity onPostExecute");
 
 		}
 
 		@Override
 		protected void onPreExecute() {
-			//String fileName = SDCardfolder+myListView.getItemAtPosition(currentID);
-			
+			if (!isCancelled()){
 			if(mp!=null){
+				Log.v("CJAPlayer", "PlayActivity onPreExecute if");
 				int currentMillis = mp.getCurrentPosition();
 				int totalMillis = mp.getDuration();
 				int seconds = (int) (TimeUnit.MILLISECONDS.toSeconds(currentMillis) % 60);
@@ -226,16 +263,42 @@ public class PlayActivity extends Activity{
 				}
 				progressBar.setProgress(currentMillis);
 				progressBar.setMax(totalMillis);
+
 			} 
+			}else {
+				Log.v("CJAPlayer", "PlayActivity onPreExecute else");
+				
+			}
 		}
 
+	    @Override
+	    protected void onCancelled() {
+	    	Log.v("CJAPlayer", "PlayActivity onCancelled");
+	        if ((mp != null)) {
+	        	if(mp.isPlaying()){
+	        	       	 mp.stop();
+	        	       	 mp.release();
+	        	       	 mp=null;
+	        	       progressBar=null;
+	        	}
+	        	
+	        }
+	    }
+	    
 		@Override
 		protected Void doInBackground(Void... params) {
+			
+			Log.v("CJAPlayer", "PlayActivity doInBackground");
 			while(songStatus == SongStatus.PLAYING){
+				if(isCancelled()){ //cja
+                    break;
+                }
         		int millis = mp.getCurrentPosition();
-        		publishProgress(millis);
-        		SystemClock.sleep(1000);
+        		progressBar.setProgress(millis);
+        		//publishProgress(millis);
+        		 SystemClock.sleep(1000);
         	}
+			
 			return null;
 		}
 
@@ -256,5 +319,101 @@ public class PlayActivity extends Activity{
 			}	
 		}
 	}
+
+	   @Override
+	    public boolean onKeyDown(int keyCode, KeyEvent event) {
+	        if (keyCode == KeyEvent.KEYCODE_BACK) {
+	        	Log.v("CJAPlayer", "PlayActivity KEYCODE_BACK" );
+	        	
+	 
+	        }
+	        return super.onKeyDown(keyCode, event);
+	    }
+	
+	@Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Take appropriate action for each action item click
+		Bundle bundle = new Bundle();
+        switch (item.getItemId()) {
+        case R.id.action_delete_player:
+        	Intent shareORdel = new Intent(PlayActivity.this, ShareActivity.class);
+        	bundle.putString("key_action", "Del");
+        	shareORdel.putExtras(bundle);
+        	startActivity(shareORdel);
+        	
+            return true;
+
+          case R.id.action_share_player:
+        	  Intent shareORdel2 = new Intent(PlayActivity.this, ShareActivity.class);
+        	  bundle.putString("key_action", "Share");
+        	  shareORdel2.putExtras(bundle);
+          	  startActivity(shareORdel2);
+          	
+          	return true;
+          default:
+              return super.onOptionsItemSelected(item);
+        }
+	}
+	
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		 MenuInflater inflater = getMenuInflater();
+	        inflater.inflate(R.menu.activity_player_actions, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+
+
+	@Override
+	protected void onStop() {
+       	if(RefreshSongTime != null){
+        	Log.v("CJAPlayer", "PlayActivity KEYCODE_BACK" + RefreshSongTime.getStatus().toString());
+        	//RefreshSongTime.onCancelled();
+        	RefreshSongTime.cancel(true);
+        	}
+		super.onStop();
+	}
+
+
+
+	@Override
+	protected void onRestart() {
+		// TODO Auto-generated method stub
+		//progressBar = (ProgressBar) findViewById(R.id.songProgress);
+		//progressBar.setProgress(0);	
+		super.onRestart();
+	}
+
+
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		mAdView.destroy();
+		super.onDestroy();
+	}
+
+
+
+	@Override
+	protected void onPause() {
+		mAdView.pause();
+		// TODO Auto-generated method stub
+		super.onPause();
+	}
+
+
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		mAdView.resume();
+	}
+
+	
+	
+
 
 }
