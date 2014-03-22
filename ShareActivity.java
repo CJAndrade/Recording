@@ -12,13 +12,16 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class ShareActivity extends Activity {
@@ -54,7 +57,7 @@ public class ShareActivity extends Activity {
 		}
 		else
 		{
-			actionBar.setTitle("Delete Recordings");
+			actionBar.setTitle("Edit Recordings");
 		}
        actionBar.setDisplayHomeAsUpEnabled(true);
        
@@ -102,11 +105,15 @@ public class ShareActivity extends Activity {
 		if(messageRecv.contentEquals("Share")){
 		MenuItem itemDel  = menu.findItem(R.id.action_delete_player);
 		itemDel.setVisible(false);
+		MenuItem itemRename  = menu.findItem(R.id.action_rename_player);
+		itemRename.setVisible(false);
         MenuItem itemShare  = menu.findItem(R.id.action_share_player);
         itemShare.setVisible(true);
 		}else{
 			MenuItem itemDel  = menu.findItem(R.id.action_delete_player);
 			itemDel.setVisible(true);
+			MenuItem itemRename  = menu.findItem(R.id.action_rename_player);
+			itemRename.setVisible(true);
 	        MenuItem itemShare  = menu.findItem(R.id.action_share_player);
 	        itemShare.setVisible(false);
 		}
@@ -138,9 +145,67 @@ public class ShareActivity extends Activity {
           	       });
           	     alert.show();
             return true;
+        case R.id.action_rename_player:
+        	AlertDialog.Builder alertRename = new AlertDialog.Builder(this);
+        	alertRename.setTitle("Rename File");
+        	alertRename.setMessage("Rename recorded file to");
+        	final EditText input = new EditText(this);
+		       int maxLength = 24;    
+		       input.setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLength)});
+		       input.setText(myListView.getItemAtPosition(currentID).toString());
+		       alertRename.setView(input);
+		       alertRename.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+		       public void onClick(DialogInterface dialog, int whichButton) {
+		        if(myListView.getItemAtPosition(currentID).toString() == input.getText().toString()){
+		        	//OUT_FILE_NAME =OUT_FILE_NAME+".mp3";
+		        	Log.d("TAGCreateNewfile", "1"+myListView.getItemAtPosition(currentID).toString());
+		        }
+		        else{  
+		    	   if (input.getText().toString().isEmpty()){
+		    		   Toast.makeText(getApplicationContext(), "Re-named file name can not be blank.File name set as: "+ myListView.getItemAtPosition(currentID).toString(), Toast.LENGTH_LONG).show();
+		    		   input.setText(myListView.getItemAtPosition(currentID).toString());
+		    	   }
+		    	   Log.d("TAGCreateNewfile", "0"+input.getText().toString());
+		           File directory = new File(SDCardfolder);
+		           File from      = new File(directory, myListView.getItemAtPosition(currentID).toString());//+".mp3"
+		           Log.d("TAGCreateNewfile", "2"+from.toString());
+		           File to        = new File(directory,input.getText().toString());//+".mp3"
+		           Log.d("TAGCreateNewfile", "3"+to.toString());
+		           try { 
+		        	      if(from.renameTo(to)){ //returns true if renaming of file is sucessfull  
+			        		   Log.d("TAGCreateNewfile", "true"); 
+			        	   }else
+			        	   {
+			        		   Log.d("TAGCreateNewfile", "failed to rename file"); 
+			        		   Toast.makeText(getApplicationContext(), "Failed to re-name recorded file, please send the developer an email", Toast.LENGTH_LONG).show();
+			        	   }
+			         
+		                   }
+			           catch (Exception e) 
+			           { 
+			        	   Toast.makeText(getApplicationContext(), ""+e, Toast.LENGTH_LONG).show();
+			           }
 
+		        }
+			       
+		    	   sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse(SDCardfolder+myListView.getItemAtPosition(currentID).toString())));
+		           Log.d("TAGCreateNewfile", "After OK sendBroadcast ");
+		           startActivity(new Intent(ShareActivity.this, PlayActivity.class));
+		         }
+		       });
+
+		       alertRename.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+		         public void onClick(DialogInterface dialog, int whichButton) {
+		        	 sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse(SDCardfolder+myListView.getItemAtPosition(currentID).toString())));
+		        	  Log.d("TAGCreateNewfile", "After Cancel sendBroadcast ");
+		         }
+		       });
+
+		       alertRename.show();
+        	
+        	Log.v("CJAshare", "action_rename_player:");
+            return true;
           case R.id.action_share_player:
- 
           	  //sharing recording
      Log.v("CJAShare", "action_share_player"+ "file://"+SDCardfolder+myListView.getItemAtPosition(currentID).toString());
             	Intent  shareIntent = new Intent() ;

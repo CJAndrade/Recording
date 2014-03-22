@@ -324,8 +324,7 @@ public class PlayActivity extends Activity{
 	    public boolean onKeyDown(int keyCode, KeyEvent event) {
 	        if (keyCode == KeyEvent.KEYCODE_BACK) {
 	        	Log.v("CJAPlayer", "PlayActivity KEYCODE_BACK" );
-	        	
-	 
+	        	startActivity(new Intent(PlayActivity.this, MainActivity.class));
 	        }
 	        return super.onKeyDown(keyCode, event);
 	    }
@@ -335,19 +334,24 @@ public class PlayActivity extends Activity{
         // Take appropriate action for each action item click
 		Bundle bundle = new Bundle();
         switch (item.getItemId()) {
-        case R.id.action_delete_player:
+        case R.id.action_edit_player:
         	Intent shareORdel = new Intent(PlayActivity.this, ShareActivity.class);
-        	bundle.putString("key_action", "Del");
+        	bundle.putString("key_action", "Edit");
         	shareORdel.putExtras(bundle);
         	startActivity(shareORdel);
         	
             return true;
 
           case R.id.action_share_player:
-        	  Intent shareORdel2 = new Intent(PlayActivity.this, ShareActivity.class);
-        	  bundle.putString("key_action", "Share");
-        	  shareORdel2.putExtras(bundle);
-          	  startActivity(shareORdel2);
+        	//  Intent shareORdel2 = new Intent(PlayActivity.this, ShareActivity.class);
+        	//  bundle.putString("key_action", "Share");
+        	  //shareORdel2.putExtras(bundle);
+        		Intent  shareIntent = new Intent() ;
+            	shareIntent.setAction(Intent.ACTION_SEND);
+            	shareIntent.setType("audio/*");
+            	shareIntent.putExtra(Intent.EXTRA_STREAM,Uri.parse("file://"+SDCardfolder+myListView.getItemAtPosition(currentID).toString()));
+            	startActivity(Intent.createChooser(shareIntent, "Share: "+myListView.getItemAtPosition(currentID).toString()));
+          	 // startActivity(shareORdel2);
           	
           	return true;
           default:

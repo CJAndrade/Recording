@@ -90,7 +90,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 
     private ImageButton deleteButton;
 
-    private MediaRecorder mediaRecorder = null;
+    private MediaRecorder mediaRecorder;
 
      MediaPlayer mediaPlayer = null;
      //For CJA MOGA
@@ -257,6 +257,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 			@Override
 			public void receiveData(Context context, int transactionId,
 					PebbleDictionary data) {
+				Log.d("CJAPebbleReceiver", "On dataReceiver ONCreate");
 				String val = data.getInteger(1).toString();
 				// TODO Auto-generated method stub
 				Log.d("CJAPebbleRecordBRval", "Request value : " + val);
@@ -273,6 +274,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 					stop(null);
 				}
 			}
+			
         };
 
 		PebbleKit.registerReceivedDataHandler(this, dataReceiver);
@@ -495,14 +497,15 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 		           File to        = new File(directory,input.getText().toString()+".mp3");
 		           Log.d("TAGCreateNewfile", "3"+to.toString());
 		           try { 
-			        	   if(from.renameTo(to)){ //returns true if renaming of file is sucessfull
+		        	      if(from.renameTo(to)){ //returns true if renaming of file is sucessfull  
 			        		   Log.d("TAGCreateNewfile", "true"); 
 			        	   }else
 			        	   {
 			        		   Log.d("TAGCreateNewfile", "failed to rename file"); 
 			        		   Toast.makeText(getApplicationContext(), "Failed to re-name recorded file, please send the developer an email", Toast.LENGTH_LONG).show();
 			        	   }
-			               } 
+			         
+		                   }
 			           catch (Exception e) 
 			           { 
 			        	   Toast.makeText(getApplicationContext(), ""+e, Toast.LENGTH_LONG).show();
@@ -597,6 +600,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
         	mController.onPause(); }
         //unregistering the pebble reciver
         if (dataReceiver != null) {
+        	Log.d("CJAPebbleReceiver", "On dataReceiver ONPAUSE");
             unregisterReceiver(dataReceiver);
             dataReceiver = null;
         }
@@ -619,8 +623,8 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 		if(mController != null) {
 			mController.onResume(); }
 		//CJAADD resume the pebble data reciver
-		if (dataReceiver == null) {
-			Log.d("CJAPebble", "On dataReceiver resume");
+	/*	if (dataReceiver == null) {
+			Log.d("CJAPebbleReceiver", "On dataReceiver ONresume");
 		AppId = UUID.fromString("8bb49bab-77fe-4028-bd5e-4fbf35e134e1");
         dataReceiver =new PebbleKit.PebbleDataReceiver(AppId){
 			@Override
@@ -639,7 +643,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 				}
 			}
         };
-		}
+		}*/
 	}
     // called when the playback is done
     public void onCompletion(MediaPlayer mp) {
