@@ -1,6 +1,5 @@
 package com.cja.wearablerecorder;
 
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -46,6 +45,7 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -53,6 +53,7 @@ import android.os.SystemClock;
 
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.InputFilter;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Gravity;
@@ -83,7 +84,8 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
     private ImageButton recordButton;
     private  String fromPebble =null;
    // private ImageButton ;
-
+    private PebbleKit.PebbleDataReceiver dataReceiver = null;
+    UUID AppId;
     private ImageButton playButton;
 
     private ImageButton deleteButton;
@@ -155,7 +157,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
           	return true;
           case R.id.action_pebble:
         	  //Open pebble app on pebble  
-        	  UUID AppId = UUID.fromString("8bb49bab-77fe-4028-bd5e-4fbf35e134e1"); //CJATODO define UUID as global variable
+        	  AppId = UUID.fromString("8bb49bab-77fe-4028-bd5e-4fbf35e134e1"); //CJATODO define UUID as global variable
         	  if(PebbleKit.isWatchConnected(getApplicationContext())){
         		  PebbleKit.startAppOnPebble(getApplicationContext(), AppId);
         	  }else {
@@ -250,8 +252,8 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 		//reciving data from pebble 
         //CJATODO need to implement a broadcast reciver
         //from http://developer.getpebble.com/2/mobile-app-guide/android-guide.htm
-        UUID AppId = UUID.fromString("8bb49bab-77fe-4028-bd5e-4fbf35e134e1");
-		PebbleKit.registerReceivedDataHandler(this, new PebbleKit.PebbleDataReceiver(AppId) {
+        AppId = UUID.fromString("8bb49bab-77fe-4028-bd5e-4fbf35e134e1");
+        dataReceiver =new PebbleKit.PebbleDataReceiver(AppId){
 			@Override
 			public void receiveData(Context context, int transactionId,
 					PebbleDictionary data) {
@@ -271,7 +273,9 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 					stop(null);
 				}
 			}
-		});
+        };
+
+		PebbleKit.registerReceivedDataHandler(this, dataReceiver);
 		/*//CJAWtest 
         //CJARM testing using push button
         pushButton.setOnClickListener(new View.OnClickListener() {
@@ -342,7 +346,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
         d = new Date();
         //currentDateTime = DateFormat.format("yyyy-MM-dd'T'hh:mm:ss", d).toString();
         currentDateTime = DateFormat.format("yyyymmddThhmmss", d).toString();
-        OUT_FILE_NAME= "RecAt"+currentDateTime+".mp3";
+        OUT_FILE_NAME= "Rec"+currentDateTime+".mp3";
         //CJAWtest trackNameeditText.setText(this.files.getAbsolutePath().toString());
         this.files = new File(extStorageDirectory,OUT_FILE_NAME);
         
@@ -374,7 +378,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
             fileNametextView.setText(OUT_FILE_NAME);
             
             //Pushing recorded file name to pebble
-			UUID AppId = UUID.fromString("8bb49bab-77fe-4028-bd5e-4fbf35e134e1");
+			AppId = UUID.fromString("8bb49bab-77fe-4028-bd5e-4fbf35e134e1");
 			PebbleKit.startAppOnPebble(getApplicationContext(), AppId);
 			 
 		   
@@ -467,6 +471,9 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 		      // string = string.substring(0, string.length()-1);
 		       OUT_FILE_NAME = OUT_FILE_NAME.substring(0, OUT_FILE_NAME.length()-4);
 		       final EditText input = new EditText(this);
+		       int maxLength = 24;    
+		       input.setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLength)});
+
 		       input.setText(OUT_FILE_NAME);
 		       alert.setView(input);
 		       alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -522,7 +529,7 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
         // update the buttons
         this.setButtonsEnabled(true, true, new File(extStorageDirectory,fileNametextView.getText().toString()).exists());
       //Pushing recorded file name to pebble
-		UUID AppId = UUID.fromString("8bb49bab-77fe-4028-bd5e-4fbf35e134e1");
+		AppId = UUID.fromString("8bb49bab-77fe-4028-bd5e-4fbf35e134e1");
 		PebbleKit.startAppOnPebble(getApplicationContext(), AppId);
 		
 		//CJA - Exception handling if pebble is not connected to the phone.
@@ -554,8 +561,12 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 	       public void onClick(DialogInterface dialog, int whichButton) {
 			new File(extStorageDirectory,fileNametextView.getText().toString()).delete();
 			 OUT_FILE_NAME = fileNametextView.getText().toString();
-			//CJA resolve kitkat error sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://"+extStorageDirectory)));
-			fileNametextView.setText("Recorded file deleted");
+			//CJA resolve kitkat 4.4 error 
+			 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT){ 
+				 Log.d("TAGCreateNewfile","NOT KITKAT");
+			 sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://"+extStorageDirectory)));
+			 }
+			 fileNametextView.setText("Recorded file name");
 			setButtonsEnabled(true, false, false);
 	         }
 	       });
@@ -584,8 +595,19 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
         WriteModeOff(); //NFC function
         if(mController != null) {
         	mController.onPause(); }
+        //unregistering the pebble reciver
+        if (dataReceiver != null) {
+            unregisterReceiver(dataReceiver);
+            dataReceiver = null;
+        }
     }
 
+	@Override
+	protected void onStop() {
+		// TODO Auto-generated method stub
+		super.onStop();
+
+	}
 	@Override
 	public void onResume(){
 		super.onResume();
@@ -596,10 +618,33 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 		WriteModeOn();//NFC function
 		if(mController != null) {
 			mController.onResume(); }
+		//CJAADD resume the pebble data reciver
+		if (dataReceiver == null) {
+			Log.d("CJAPebble", "On dataReceiver resume");
+		AppId = UUID.fromString("8bb49bab-77fe-4028-bd5e-4fbf35e134e1");
+        dataReceiver =new PebbleKit.PebbleDataReceiver(AppId){
+			@Override
+			public void receiveData(Context context, int transactionId,
+					PebbleDictionary data) {
+				String val = data.getInteger(1).toString();
+				// TODO Auto-generated method stub
+				Log.d("CJAPebbleRecordBRval", "Request value : " + val);
+				if(val.contentEquals("11")){ 
+						record(null);
+			     }
+				
+				if(val.contentEquals("22")){ 
+					fromPebble="peb";
+					stop(null);
+				}
+			}
+        };
+		}
 	}
     // called when the playback is done
     public void onCompletion(MediaPlayer mp) {
-        this.stop(null);
+       
+    	this.stop(null);
         //resetting play timer
         timechronometer.stop();
         //stopButton.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_media_stop));
@@ -610,8 +655,8 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
     protected void onDestroy() {//CJATODO nullify all the variable
     	this.stop(null); //CJATODO stop recording if running which will in turn update media store
     	if(mController != null) {
-    mController.exit(); }
-    	mAdView.destroy();
+         mController.exit(); }
+    	 mAdView.destroy();
     	
             super.onDestroy();
     }
