@@ -2,6 +2,8 @@ package com.cja.wearablerecorder;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 
 import android.app.ActionBar;
@@ -31,6 +33,7 @@ public class ShareActivity extends Activity {
 	private String Recording_Path = "wearableRecord";
 	private SelectedAdapter selectedAdapter; 
 	private File file;
+	private String pathFile;
 	private String messageRecv;
 	//private String Recording_Path= "MyMusic";
     private String SDCardfolder = Environment.getExternalStorageDirectory()
@@ -65,6 +68,11 @@ public class ShareActivity extends Activity {
        list = new ArrayList();
       file = new File(SDCardfolder);
       File[] files = file.listFiles(); 
+      Arrays.sort(files, new Comparator<File>(){ //Sorting files desc
+  	    public int compare(File f1, File f2)
+  	    {
+  	        return Long.valueOf(f2.lastModified()).compareTo(f1.lastModified());
+  	    } });
       if (null != files) {
           for (int i = 0; i < files.length; i++) {
               if (files[i].getName().endsWith("mp3")) {
@@ -79,6 +87,7 @@ public class ShareActivity extends Activity {
 
        
        myListView.setAdapter(selectedAdapter);
+       myListView.setSelection(0);//HighLight the first row
        myListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView arg0, View view,
@@ -152,24 +161,27 @@ public class ShareActivity extends Activity {
         	final EditText input = new EditText(this);
 		       int maxLength = 24;    
 		       input.setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLength)});
-		       input.setText(myListView.getItemAtPosition(currentID).toString());
+    		   pathFile = myListView.getItemAtPosition(currentID).toString();
+    		   pathFile = pathFile.substring(0,pathFile.length()-4);//removing the mp3 at the end
+    		   Log.d("TAGCreateNewfile", "pathFile"+ pathFile);
+		       input.setText(pathFile);
 		       alertRename.setView(input);
 		       alertRename.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 		       public void onClick(DialogInterface dialog, int whichButton) {
-		        if(myListView.getItemAtPosition(currentID).toString() == input.getText().toString()){
+		        if(pathFile == input.getText().toString()){
 		        	//OUT_FILE_NAME =OUT_FILE_NAME+".mp3";
 		        	Log.d("TAGCreateNewfile", "1"+myListView.getItemAtPosition(currentID).toString());
 		        }
 		        else{  
 		    	   if (input.getText().toString().isEmpty()){
 		    		   Toast.makeText(getApplicationContext(), "Re-named file name can not be blank.File name set as: "+ myListView.getItemAtPosition(currentID).toString(), Toast.LENGTH_LONG).show();
-		    		   input.setText(myListView.getItemAtPosition(currentID).toString());
+				       input.setText(pathFile);
 		    	   }
 		    	   Log.d("TAGCreateNewfile", "0"+input.getText().toString());
 		           File directory = new File(SDCardfolder);
-		           File from      = new File(directory, myListView.getItemAtPosition(currentID).toString());//+".mp3"
+		           File from      = new File(directory, pathFile+".mp3");//+".mp3"
 		           Log.d("TAGCreateNewfile", "2"+from.toString());
-		           File to        = new File(directory,input.getText().toString());//+".mp3"
+		           File to        = new File(directory,input.getText().toString()+".mp3");//+".mp3"
 		           Log.d("TAGCreateNewfile", "3"+to.toString());
 		           try { 
 		        	      if(from.renameTo(to)){ //returns true if renaming of file is sucessfull  

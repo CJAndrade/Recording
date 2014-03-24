@@ -3,6 +3,8 @@ package com.cja.wearablerecorder;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -93,6 +95,11 @@ public class PlayActivity extends Activity{
 
            File file = new File(SDCardfolder);
            File[] files = file.listFiles(); 
+           Arrays.sort(files, new Comparator<File>(){ //Sorting files desc
+        	    public int compare(File f1, File f2)
+        	    {
+        	        return Long.valueOf(f2.lastModified()).compareTo(f1.lastModified());
+        	    } });
            if (null != files) {
                for (int i = 0; i < files.length; i++) {
                    if (files[i].getName().endsWith("mp3")) {
@@ -100,6 +107,7 @@ public class PlayActivity extends Activity{
                    }
                    }
                    }
+           
     		selectedAdapter = new SelectedAdapter(this,0,list);
     		selectedAdapter.setNotifyOnChange(true);
 
