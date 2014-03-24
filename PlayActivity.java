@@ -132,7 +132,6 @@ public class PlayActivity extends Activity{
     		            {
     		        	 if ((mp != null) && (mp.isPlaying())) {
     		        	 mp.stop();
-    		        	// mp.release(); 
     		        	 }
     		        	 playSong(); 
     		         }
@@ -174,7 +173,7 @@ public class PlayActivity extends Activity{
         Log.v("CJAPlayer", "PlayActivity playSong. currentID: "
                 + currentID);
 		if(!(songStatus==SongStatus.PAUSE)){
-        mp = new MediaPlayer();
+			mp = new MediaPlayer();
         try {
 			mp.setDataSource(SDCardfolder+myListView.getItemAtPosition(currentID).toString());
 		} catch (IllegalArgumentException e) {
@@ -192,6 +191,7 @@ public class PlayActivity extends Activity{
 		}
         try {
 			mp.prepare();
+			Log.v("CJAPlayer", "mp.prepare();");
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -200,7 +200,9 @@ public class PlayActivity extends Activity{
 			e.printStackTrace();
 		}
         duration = mp.getDuration();
+        Log.v("CJAPlayer", "duration");
         progressBar.setMax(duration);
+        Log.v("CJAPlayer", "progressBar");
 		}//end of if songstatus
         mp.start();
         songStatus = SongStatus.PLAYING;
@@ -294,7 +296,8 @@ public class PlayActivity extends Activity{
 	        	       	 mp.stop();
 	        	       	 mp.release();
 	        	       	 mp=null;
-	        	       progressBar=null;
+	        	       //progressBar=null;
+	        	       songStatus = SongStatus.INIT;
 	        	}
 	        	
 	        }
@@ -390,7 +393,7 @@ public class PlayActivity extends Activity{
 	@Override
 	protected void onStop() {
        	if(RefreshSongTime != null){
-        	Log.v("CJAPlayer", "PlayActivity KEYCODE_BACK" + RefreshSongTime.getStatus().toString());
+        	Log.v("CJAPlayer", "PlayActivity onStop()" + RefreshSongTime.getStatus().toString());
         	//RefreshSongTime.onCancelled();
         	RefreshSongTime.cancel(true);
         	}
@@ -401,9 +404,7 @@ public class PlayActivity extends Activity{
 
 	@Override
 	protected void onRestart() {
-		// TODO Auto-generated method stub
-		//progressBar = (ProgressBar) findViewById(R.id.songProgress);
-		//progressBar.setProgress(0);	
+		// TODO Auto-generated method stub	
 
 		super.onRestart();
 	}
