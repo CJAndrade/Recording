@@ -207,6 +207,13 @@ public class PlayActivity extends Activity{
         playButton.setImageDrawable(this.getResources().getDrawable(R.drawable.btn_pause));
         RefreshSongTime = new RefreshSongTimeAsyncTask();
         RefreshSongTime.execute();
+        //Log.v("CJAPlayer", "PlayActivity Status async execute: "+ RefreshSongTime.getStatus().toString());
+       /* if(RefreshSongTime.getStatus() == AsyncTask.Status.FINISHED){
+        	Log.v("CJAPlayer", "PlayActivity Status async execute: "
+                    + RefreshSongTime.getStatus().toString());
+        }*/ 
+
+   
     }
     
   private void processViews() {
@@ -247,7 +254,7 @@ public class PlayActivity extends Activity{
 		@Override
 		protected void onPostExecute(Void result) {
 			Log.v("CJAPlayer", "PlayActivity onPostExecute");
-
+			playButton.setImageDrawable(getResources().getDrawable(R.drawable.btn_play));
 		}
 
 		@Override
@@ -302,6 +309,9 @@ public class PlayActivity extends Activity{
                     break;
                 }
         		int millis = mp.getCurrentPosition();
+                if (!mp.isPlaying()) {
+                  break; //to complete doInBackground and move to onPostExecute 
+              }
         		progressBar.setProgress(millis);
         		//publishProgress(millis);
         		 SystemClock.sleep(1000);
@@ -394,6 +404,7 @@ public class PlayActivity extends Activity{
 		// TODO Auto-generated method stub
 		//progressBar = (ProgressBar) findViewById(R.id.songProgress);
 		//progressBar.setProgress(0);	
+
 		super.onRestart();
 	}
 
