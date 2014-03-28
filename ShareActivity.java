@@ -134,8 +134,10 @@ public class ShareActivity extends Activity {
         // Take appropriate action for each action item click
         switch (item.getItemId()) {
         case R.id.action_delete_player:
-        
-        	Log.v("CJAshare", "action_delete_player:");
+        	  if(myListView.getCount() < 1){
+        		  Toast.makeText(getApplicationContext(), "There are currently NO recordings to Delete..",Toast.LENGTH_LONG).show();
+        	  }
+        	  else{
         	 AlertDialog.Builder alert = new AlertDialog.Builder(this);
            	       alert.setTitle("Delete Recording");
            	       alert.setMessage("Are you sure you want to delete the Recording :"+ myListView.getItemAtPosition(currentID).toString());
@@ -153,8 +155,13 @@ public class ShareActivity extends Activity {
           	         }
           	       });
           	     alert.show();
+        	  }
             return true;
         case R.id.action_rename_player:
+        	  if(myListView.getCount() < 1){
+        		  Toast.makeText(getApplicationContext(), "There are currently NO recordings to Re-name..",Toast.LENGTH_LONG).show();
+        	  }
+        	  else{
         	AlertDialog.Builder alertRename = new AlertDialog.Builder(this);
         	alertRename.setTitle("Rename File");
         	alertRename.setMessage("Rename recorded file to");
@@ -214,8 +221,7 @@ public class ShareActivity extends Activity {
 		       });
 
 		       alertRename.show();
-        	
-        	Log.v("CJAshare", "action_rename_player:");
+        	  }
             return true;
           case R.id.action_share_player:
           	  //sharing recording

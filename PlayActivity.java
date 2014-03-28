@@ -235,7 +235,10 @@ public class PlayActivity extends Activity{
         @Override
         public void onClick(View v) {
             Log.v("CJAPlayer", "Play Button is Pressed");
-
+      	  if(myListView.getCount() < 1){ //checking if mylist is empty
+    		  Toast.makeText(getApplicationContext(), "There are currently NO recordings to Play..",Toast.LENGTH_LONG).show();
+    	  }
+    	  else{
             //stoping the song 
 			if ((mp != null) && (mp.isPlaying())) {
 				mp.pause();
@@ -245,7 +248,7 @@ public class PlayActivity extends Activity{
 			{
 				playSong();
 			}
-			
+    	  }
         }
     }
     
@@ -367,13 +370,17 @@ public class PlayActivity extends Activity{
         	//  Intent shareORdel2 = new Intent(PlayActivity.this, ShareActivity.class);
         	//  bundle.putString("key_action", "Share");
         	  //shareORdel2.putExtras(bundle);
+        	  if(myListView.getCount() < 1){
+        		  Toast.makeText(getApplicationContext(), "There are currently NO recordings to Share..",Toast.LENGTH_LONG).show();
+        	  }
+        	  else{
         		Intent  shareIntent = new Intent() ;
             	shareIntent.setAction(Intent.ACTION_SEND);
             	shareIntent.setType("audio/*");
             	shareIntent.putExtra(Intent.EXTRA_STREAM,Uri.parse("file://"+SDCardfolder+myListView.getItemAtPosition(currentID).toString()));
             	startActivity(Intent.createChooser(shareIntent, "Share: "+myListView.getItemAtPosition(currentID).toString()));
           	 // startActivity(shareORdel2);
-          	
+        	  }
           	return true;
           default:
               return super.onOptionsItemSelected(item);
