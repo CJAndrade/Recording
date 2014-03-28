@@ -228,7 +228,7 @@ public class ShareActivity extends Activity {
 		       alertRename.show();
         	  }
             return true;
-          case R.id.action_share_player:
+          case R.id.action_share_player: //CJA not used , sharing done directly from the player screen.
           	  //sharing recording
      Log.v("CJAShare", "action_share_player"+ "file://"+SDCardfolder+myListView.getItemAtPosition(currentID).toString());
             	Intent  shareIntent = new Intent() ;

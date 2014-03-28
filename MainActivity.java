@@ -480,25 +480,28 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 		       alert.setView(input);
 		       alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 		       public void onClick(DialogInterface dialog, int whichButton) {
-		        if(OUT_FILE_NAME == input.getText().toString()){
+		        //if(OUT_FILE_NAME == input.getText().toString()){
 		        	//OUT_FILE_NAME =OUT_FILE_NAME+".mp3";
-		        	Log.d("TAGCreateNewfile", "1"+OUT_FILE_NAME);
-		        }
-		        else{  
+		        //}
+		        //else{  
 		    	   if (input.getText().toString().isEmpty()){
 		    		   Toast.makeText(getApplicationContext(), "Re-named file name can not be blank.File name set as: "+ OUT_FILE_NAME, Toast.LENGTH_LONG).show();
 		    		   input.setText(OUT_FILE_NAME);
 		    	   }
-		    	   Log.d("TAGCreateNewfile", "0"+input.getText().toString());
-		    	   fileNametextView.setText(input.getText().toString()+".mp3");
 		           File directory = new File(extStorageDirectory+"/");
 		           File from      = new File(directory, OUT_FILE_NAME+".mp3");
-		           Log.d("TAGCreateNewfile", "2"+from.toString());
 		           File to        = new File(directory,input.getText().toString()+".mp3");
-		           Log.d("TAGCreateNewfile", "3"+to.toString());
+		           boolean sameName = OUT_FILE_NAME.equals(input.getText().toString());
+		           if((to.exists()) && (!sameName)){
+		        	   fileNametextView.setText(OUT_FILE_NAME+".mp3");
+					    Toast.makeText(getApplicationContext(), "Cannot Re-name recording to "+input.getText().toString()+" " +
+					    		".mp3, because another recording with same name exists.Use the Re-name Option in the Player.", Toast.LENGTH_LONG).show();
+				
+		           }else{
+		        	   fileNametextView.setText(input.getText().toString()+".mp3");
 		           try { 
-		        	      if(from.renameTo(to)){ //returns true if renaming of file is sucessfull  
-			        		   Log.d("TAGCreateNewfile", "true"); 
+		        	   
+		        	      if(from.renameTo(to)){ //returns true if renaming of file is successful 
 			        	   }else
 			        	   {
 			        		   Log.d("TAGCreateNewfile", "failed to rename file"); 
@@ -510,10 +513,10 @@ public class MainActivity extends Activity implements OnCompletionListener, Cont
 			           { 
 			        	   Toast.makeText(getApplicationContext(), ""+e, Toast.LENGTH_LONG).show();
 			           }
-		           
 		           OUT_FILE_NAME = fileNametextView.getText().toString();
-		           Log.d("TAGCreateNewfile", "4"+OUT_FILE_NAME.toString());
-		        }
+		           }//end of else file exists
+
+		       // }
 			       
 		    	   sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://"+extStorageDirectory+"/"+OUT_FILE_NAME)));
 		           Log.d("TAGCreateNewfile", "After OK sendBroadcast ");
