@@ -190,6 +190,10 @@ public class ShareActivity extends Activity {
 		           Log.d("TAGCreateNewfile", "2"+from.toString());
 		           File to        = new File(directory,input.getText().toString()+".mp3");//+".mp3"
 		           Log.d("TAGCreateNewfile", "3"+to.toString());
+		           if(to.exists()){
+					    Toast.makeText(getApplicationContext(), "Cannot Re-name recording to "+input.getText().toString()+" " +
+					    		".mp3, because another recording with same name exists.", Toast.LENGTH_LONG).show();
+		           }else{
 		           try { 
 		        	      if(from.renameTo(to)){ //returns true if renaming of file is sucessfull  
 			        		   Log.d("TAGCreateNewfile", "true"); 
@@ -204,6 +208,7 @@ public class ShareActivity extends Activity {
 			           { 
 			        	   Toast.makeText(getApplicationContext(), ""+e, Toast.LENGTH_LONG).show();
 			           }
+		           }
 
 		        }
 			       
